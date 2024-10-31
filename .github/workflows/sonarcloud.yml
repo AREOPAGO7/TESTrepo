@@ -1,0 +1,38 @@
+name: SonarQube Scan
+
+on:
+  push:
+    branches:
+      - master  # or replace with your default branch name
+  pull_request:
+    branches:
+      - master  # or replace with your default branch name
+
+jobs:
+  sonarcloud:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'  # Use your project's Java version
+
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token from GitHub Secrets
+        run: |
+          # Download SonarScanner if not already installed
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux.zip
+          unzip -o sonar-scanner.zip -d sonar-scanner
+          sonar-scanner/bin/sonar-scanner \
+            -Dsonar.projectKey=YOUR_PROJECT_KEY  # Replace with your SonarQube project key
+            -Dsonar.projectName=YOUR_PROJECT_NAME  # Replace with your project name
+            -Dsonar.projectVersion=1.0
+            -Dsonar.sources=. \
+            -Dsonar.host.url=http://localhost:9000  # Replace with SonarQube server URL if different
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
