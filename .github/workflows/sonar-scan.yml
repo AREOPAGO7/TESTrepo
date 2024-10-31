@@ -3,14 +3,12 @@ name: SonarQube Scan
 on:
   push:
     branches:
-      - master  # Change this to your default branch name
+      - master  
   pull_request:
     branches:
-      - master  # Change this to your default branch name
-
+      - master  
 jobs:
-  sonarcloud:
-    name: SonarQube Scan
+  sonar:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +18,11 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '17'  # Use your project's Java version
+          java-version: '17'
 
       - name: SonarQube Scan
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token stored in GitHub secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  
         run: |
           sonar-scanner \
             -Dsonar.projectKey=TESTrepo \
