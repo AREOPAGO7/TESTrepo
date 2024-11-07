@@ -3,25 +3,33 @@ name: SonarQube Scan
 on:
   push:
     branches:
-      - master  # Adjust if your default branch is different
+      - master
 
 jobs:
-  sonarcloud:
-    name: SonarQube Scan
+  sonar:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up Java (if required by your project)
+        uses: actions/setup-java@v3
         with:
-          java-version: '17'  # Match this to your project's Java version
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: SonarQube Scan
+      - name: Install SonarScanner
+        run: |
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+          unzip sonar-scanner-cli-4.6.2.2472-linux.zip
+          mv sonar-scanner-4.6.2.2472-linux sonar-scanner
+          export PATH="${{ github.workspace }}/sonar-scanner/bin:$PATH"
+        shell: bash
+
+      - name: Run SonarScanner
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  # Token from GitHub secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner \
             -Dsonar.projectKey=TESTrepo \
@@ -29,4 +37,4 @@ jobs:
             -Dsonar.projectVersion=1.0 \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=$SONAR_TOKEN
