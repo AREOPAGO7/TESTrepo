@@ -3,7 +3,7 @@ name: SonarQube Scan
 on:
   push:
     branches:
-      - master
+      - mastre
 
 jobs:
   sonar:
@@ -13,28 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Install SonarScanner
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-          unzip sonar-scanner-cli-4.6.2.2472-linux.zip
-          mv sonar-scanner-4.6.2.2472-linux sonar-scanner
-          export PATH="${{ github.workspace }}/sonar-scanner/bin:$PATH"
-        shell: bash
-
-      - name: Run SonarScanner
+      - name: Run SonarScanner using Docker
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: 'http://localhost:9000'  # Replace with your SonarQube server URL if different
         run: |
-          sonar-scanner \
+          docker run --rm \
+            -e SONAR_HOST_URL=$SONAR_HOST_URL \
+            -e SONAR_LOGIN=$SONAR_TOKEN \
+            -v "${{ github.workspace }}:/usr/src" \
+            sonarsource/sonar-scanner-cli \
             -Dsonar.projectKey=TESTrepo \
             -Dsonar.projectName=TESTrepo \
             -Dsonar.projectVersion=1.0 \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=$SONAR_TOKEN
+            -Dsonar.sources=/usr/src
