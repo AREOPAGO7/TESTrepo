@@ -3,7 +3,7 @@ name: SonarQube Scan
 on:
   push:
     branches:
-      - mastre
+      - master
 
 jobs:
   sonar:
